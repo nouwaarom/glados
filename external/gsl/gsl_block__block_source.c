@@ -16,6 +16,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+#include "gsl_block.h"
+#include "templates_on.h"
 
 size_t
 FUNCTION(gsl_block,size) (const TYPE(gsl_block) * b)

@@ -22,6 +22,8 @@
 #include "sendsocket.h"
 #include "UiPause.h"
 #include "DemoEditor.h"
+#include "../fon/Sound.h"
+#include "../fon/Manipulation.h"
 
 static int praat_findObjectFromString (Interpreter interpreter, conststring32 string) {
 	try {

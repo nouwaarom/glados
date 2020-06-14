@@ -24,6 +24,7 @@
 	#include <signal.h>
 #endif
 #include <locale.h>
+#include <unistd.h>
 #if defined (UNIX)
 	#include <unistd.h>
 #endif
@@ -182,7 +183,7 @@ void praat_deselect (int IOBJECT) {
 	theCurrentPraatObjects -> numberOfSelected [readableClassId] -= 1;
 	if (! theCurrentPraatApplication -> batch && ! Melder_backgrounding) {
 		trace (U"deselecting object ", IOBJECT);
-		GuiList_deselectItem (praatList_objects, IOBJECT);
+		//GuiList_deselectItem (praatList_objects, IOBJECT);
 		trace (U"deselected object ", IOBJECT);
 	}
 }
@@ -199,21 +200,21 @@ void praat_select (int IOBJECT) {
 	if (readableClassId == 0)
 		Melder_fatal (U"No sequential unique ID for class ", object -> classInfo -> className, U".");
 	theCurrentPraatObjects -> numberOfSelected [readableClassId] += 1;
-	if (! theCurrentPraatApplication -> batch && ! Melder_backgrounding)
-		GuiList_selectItem (praatList_objects, IOBJECT);
+	//if (! theCurrentPraatApplication -> batch && ! Melder_backgrounding)
+		//GuiList_selectItem (praatList_objects, IOBJECT);
 }
 
 void praat_selectAll () { int IOBJECT; WHERE (1) praat_select (IOBJECT); }
 
 void praat_list_background () {
 	int IOBJECT;
-	WHERE (SELECTED)
-		GuiList_deselectItem (praatList_objects, IOBJECT);
+	//WHERE (SELECTED)
+		//GuiList_deselectItem (praatList_objects, IOBJECT);
 }
 void praat_list_foreground () {
 	int IOBJECT;
-	WHERE (SELECTED)
-		GuiList_selectItem (praatList_objects, IOBJECT);
+	//WHERE (SELECTED)
+		//GuiList_selectItem (praatList_objects, IOBJECT);
 }
 
 autoCollection praat_getSelectedObjects () {
@@ -262,7 +263,7 @@ void praat_write_do (UiForm dia, conststring32 extension) {
 			MelderString_copy (& defaultFileName, U"praat.", extension);
 		}
 	}
-	UiOutfile_do (dia, defaultFileName.string);
+	//UiOutfile_do (dia, defaultFileName.string);
 }
 
 static void removeAllReferencesToMoribundEditor (Editor editor) {
@@ -375,9 +376,7 @@ void praat_newWithFile (autoDaata me, MelderFile file, conststring32 myName) {
 	++ theCurrentPraatObjects -> uniqueId;
 
 	if (! theCurrentPraatApplication -> batch) {   // put a new object on the screen, at the bottom of the list
-		GuiList_insertItem (praatList_objects,
-			Melder_cat (theCurrentPraatObjects -> uniqueId, U". ", name.string),
-			theCurrentPraatObjects -> n);
+		//GuiList_insertItem (praatList_objects, Melder_cat (theCurrentPraatObjects -> uniqueId, U". ", name.string), theCurrentPraatObjects -> n);
 	}
 	CLASS = my classInfo;
 	OBJECT = me.releaseToAmbiguousOwner();   // FIXME: should be move()
@@ -419,42 +418,16 @@ void praat_updateSelection () {
 			theCurrentPraatObjects -> list [IOBJECT]. isBeingCreated = false;
 		}
 		theCurrentPraatObjects -> totalBeingCreated = 0;
-		praat_show ();
+		//praat_show ();
 	}
 }
 
-static void gui_cb_list_selectionChanged (Thing /* boss */, GuiList_SelectionChangedEvent event) {
-	Melder_assert (event -> list == praatList_objects);
-	integer IOBJECT;
-	bool first = true;
-	WHERE (SELECTED) {
-		SELECTED = false;
-		integer readableClassId = theCurrentPraatObjects -> list [IOBJECT]. object -> classInfo -> sequentialUniqueIdOfReadableClass;
-		theCurrentPraatObjects -> numberOfSelected [readableClassId] --;
-		Melder_assert (theCurrentPraatObjects -> numberOfSelected [readableClassId] >= 0);
-	}
-	theCurrentPraatObjects -> totalSelection = 0;
-	autoINTVEC selected = GuiList_getSelectedPositions (praatList_objects);
-	for (integer iselected = 1; iselected <= selected.size; iselected ++) {
-		IOBJECT = selected [iselected];
-		SELECTED = true;
-		integer readableClassId = theCurrentPraatObjects -> list [IOBJECT]. object -> classInfo -> sequentialUniqueIdOfReadableClass;
-		theCurrentPraatObjects -> numberOfSelected [readableClassId] ++;
-		Melder_assert (theCurrentPraatObjects -> numberOfSelected [readableClassId] > 0);
-		UiHistory_write (first ? U"\nselectObject: \"" : U"\nplusObject: \"");
-		UiHistory_write_expandQuotes (FULL_NAME);
-		UiHistory_write (U"\"");
-		first = false;
-		theCurrentPraatObjects -> totalSelection += 1;
-	}
-	praat_show ();
-}
 
 void praat_list_renameAndSelect (int position, conststring32 name) {
 	if (! theCurrentPraatApplication -> batch) {
-		GuiList_replaceItem (praatList_objects, name, position);   // void if name equal
-		if (! Melder_backgrounding)
-			GuiList_selectItem (praatList_objects, position);
+		//GuiList_replaceItem (praatList_objects, name, position);   // void if name equal
+		//if (! Melder_backgrounding)
+			//GuiList_selectItem (praatList_objects, position);
 	}
 }
 
@@ -485,7 +458,7 @@ void praat_removeObject (int i) {
 	MelderFile_setToNull (& theCurrentPraatObjects -> list [theCurrentPraatObjects -> n]. file);   // undangle or remove second reference
 	-- theCurrentPraatObjects -> n;
 	if (! theCurrentPraatApplication -> batch) {
-		GuiList_deleteItem (praatList_objects, i);
+		//GuiList_deleteItem (praatList_objects, i);
 	}
 }
 
@@ -493,8 +466,8 @@ static void praat_exit (int exit_code) {
 //Melder_setTracing (true);
 	int IOBJECT;
 	trace (U"destroy the picture window");
-	praat_picture_exit ();
-	praat_statistics_exit ();   // record total memory use across sessions
+	//praat_picture_exit ();
+	//praat_statistics_exit ();   // record total memory use across sessions
 
 	if (! praatP.ignorePreferenceFiles) {
 		trace (U"stop receiving messages");
@@ -536,10 +509,10 @@ static void praat_exit (int exit_code) {
 				MelderString_append (& buffer, U"# This file is generated automatically when you quit the ", praatP.title.get(), U" program.\n");
 				MelderString_append (& buffer, U"# It contains the buttons that you added interactively to the fixed or dynamic menus,\n");
 				MelderString_append (& buffer, U"# and the buttons that you hid or showed.\n\n");
-				praat_saveAddedMenuCommands (& buffer);
-				praat_saveToggledMenuCommands (& buffer);
-				praat_saveAddedActions (& buffer);
-				praat_saveToggledActions (& buffer);
+				//praat_saveAddedMenuCommands (& buffer);
+				//praat_saveToggledMenuCommands (& buffer);
+				//praat_saveAddedActions (& buffer);
+				//praat_saveToggledActions (& buffer);
 				MelderFile_writeText (& buttonsFile, buffer.string, kMelder_textOutputEncoding::ASCII_THEN_UTF16);
 			} catch (MelderError) {
 				Melder_clearError ();
@@ -555,8 +528,8 @@ static void praat_exit (int exit_code) {
 	Melder_files_cleanUp ();   // in case a URL is open
 
 	trace (U"leave the program");
-	praat_menuCommands_exit_optimizeByLeaking ();   // these calls are superflous if subsequently _Exit() is called instead of exit()
-	praat_actions_exit_optimizeByLeaking ();
+	//praat_menuCommands_exit_optimizeByLeaking ();   // these calls are superflous if subsequently _Exit() is called instead of exit()
+	//praat_actions_exit_optimizeByLeaking ();
 	Preferences_exit_optimizeByLeaking ();
 	/*
 		OPTIMIZE with an exercise in self-documenting code
@@ -655,121 +628,6 @@ static void cb_Editor_publication (Editor /* me */, autoDaata publication) {
 	praat_updateSelection ();
 }
 
-void praat_installEditor (Editor editor, int IOBJECT) {
-	if (! editor)
-		return;
-	for (int ieditor = 0; ieditor < praat_MAXNUM_EDITORS; ieditor ++) {
-		if (! EDITOR [ieditor]) {
-			EDITOR [ieditor] = editor;
-			Editor_setDestructionCallback (editor, cb_Editor_destruction);
-			Editor_setDataChangedCallback (editor, cb_Editor_dataChanged);
-			if (! editor -> d_publicationCallback)
-				Editor_setPublicationCallback (editor, cb_Editor_publication);
-			//Thing_setName (editor, Melder_cat (editor -> name.get(), U" [", ieditor + 1, U"]"));   // would break existing scripts
-			return;
-		}
-	}
-	Melder_throw (U"(praat_installEditor:) Cannot have more than ", praat_MAXNUM_EDITORS, U" editors with one object.");
-}
-
-void praat_installEditor2 (Editor editor, int i1, int i2) {
-	if (! editor)
-		return;
-	int ieditor1 = 0;
-	for (; ieditor1 < praat_MAXNUM_EDITORS; ieditor1 ++)
-		if (! theCurrentPraatObjects -> list [i1]. editors [ieditor1])
-			break;
-	int ieditor2 = 0;
-	for (; ieditor2 < praat_MAXNUM_EDITORS; ieditor2 ++)
-		if (! theCurrentPraatObjects -> list [i2]. editors [ieditor2])
-			break;
-	if (ieditor1 < praat_MAXNUM_EDITORS && ieditor2 < praat_MAXNUM_EDITORS) {
-		theCurrentPraatObjects -> list [i1]. editors [ieditor1] = theCurrentPraatObjects -> list [i2]. editors [ieditor2] = editor;
-		Editor_setDestructionCallback (editor, cb_Editor_destruction);
-		Editor_setDataChangedCallback (editor, cb_Editor_dataChanged);
-		if (! editor -> d_publicationCallback)
-			Editor_setPublicationCallback (editor, cb_Editor_publication);
-	} else {
-		Melder_throw (U"(praat_installEditor2:) Cannot have more than ", praat_MAXNUM_EDITORS, U" editors with one object.");
-	}
-}
-
-void praat_installEditor3 (Editor editor, int i1, int i2, int i3) {
-	if (! editor)
-		return;
-	int ieditor1 = 0;
-	for (; ieditor1 < praat_MAXNUM_EDITORS; ieditor1 ++)
-		if (! theCurrentPraatObjects -> list [i1]. editors [ieditor1])
-			break;
-	int ieditor2 = 0;
-	for (; ieditor2 < praat_MAXNUM_EDITORS; ieditor2 ++)
-		if (! theCurrentPraatObjects -> list [i2]. editors [ieditor2])
-			break;
-	int ieditor3 = 0;
-	for (; ieditor3 < praat_MAXNUM_EDITORS; ieditor3 ++)
-		if (! theCurrentPraatObjects -> list [i3]. editors [ieditor3])
-			break;
-	if (ieditor1 < praat_MAXNUM_EDITORS && ieditor2 < praat_MAXNUM_EDITORS && ieditor3 < praat_MAXNUM_EDITORS) {
-		theCurrentPraatObjects -> list [i1]. editors [ieditor1] = theCurrentPraatObjects -> list [i2]. editors [ieditor2] = theCurrentPraatObjects -> list [i3]. editors [ieditor3] = editor;
-		Editor_setDestructionCallback (editor, cb_Editor_destruction);
-		Editor_setDataChangedCallback (editor, cb_Editor_dataChanged);
-		if (! editor -> d_publicationCallback)
-			Editor_setPublicationCallback (editor, cb_Editor_publication);
-	} else {
-		Melder_throw (U"(praat_installEditor3:) Cannot have more than ", praat_MAXNUM_EDITORS, U" editors with one object.");
-	}
-}
-
-void praat_installEditorN (Editor editor, DaataList objects) {
-	if (! editor)
-		return;
-	/*
-		First check whether all objects in the Ordered are also in the List of Objects (Praat crashes if not),
-		and check whether there is room to add an editor for each.
-	*/
-	for (integer iOrderedObject = 1; iOrderedObject <= objects->size; iOrderedObject ++) {
-		Daata object = objects->at [iOrderedObject];
-		integer iPraatObject = 1;
-		for (; iPraatObject <= theCurrentPraatObjects -> n; iPraatObject ++) {
-			if (object == theCurrentPraatObjects -> list [iPraatObject]. object) {
-				int ieditor = 0;
-				for (; ieditor < praat_MAXNUM_EDITORS; ieditor ++)
-					if (! theCurrentPraatObjects -> list [iPraatObject]. editors [ieditor])
-						break;
-				if (ieditor >= praat_MAXNUM_EDITORS)
-					Melder_throw (U"Cannot view the same object in more than ", praat_MAXNUM_EDITORS, U" windows.");
-				break;
-			}
-		}
-		Melder_assert (iPraatObject <= theCurrentPraatObjects -> n);   // an element of the Ordered does not occur in the List of Objects
-	}
-	/*
-		There appears to be room for all elements of the Ordered. The editor window can appear. Install the editor in all objects.
-	*/
-	for (integer iOrderedObject = 1; iOrderedObject <= objects->size; iOrderedObject ++) {
-		Daata object = objects->at [iOrderedObject];
-		integer iPraatObject = 1;
-		for (; iPraatObject <= theCurrentPraatObjects -> n; iPraatObject ++) {
-			if (object == theCurrentPraatObjects -> list [iPraatObject]. object) {
-				int ieditor = 0;
-				for (; ieditor < praat_MAXNUM_EDITORS; ieditor ++) {
-					if (! theCurrentPraatObjects -> list [iPraatObject]. editors [ieditor]) {
-						theCurrentPraatObjects -> list [iPraatObject]. editors [ieditor] = editor;
-						Editor_setDestructionCallback (editor, cb_Editor_destruction);
-						Editor_setDataChangedCallback (editor, cb_Editor_dataChanged);
-						if (! editor -> d_publicationCallback)
-							Editor_setPublicationCallback (editor, cb_Editor_publication);
-						break;
-					}
-				}
-				Melder_assert (ieditor < praat_MAXNUM_EDITORS);   // we just checked, but nevertheless
-				break;
-			}
-		}
-		Melder_assert (iPraatObject <= theCurrentPraatObjects -> n);   // we already checked, but still
-	}
-}
-
 void praat_dataChanged (Daata object) {
 	/*
 	 * This function can be called at error time, which is weird.
@@ -794,18 +652,6 @@ void praat_dataChanged (Daata object) {
 	}
 }
 
-static void helpProc (conststring32 query) {
-	if (theCurrentPraatApplication -> batch) {
-		Melder_flushError (U"Cannot view manual from batch.");
-		return;
-	}
-	try {
-		autoManual manual = Manual_create (query, theCurrentPraatApplication -> manPages, false);
-		manual.releaseToUser();
-	} catch (MelderError) {
-		Melder_flushError (U"help: no help on \"", query, U"\".");
-	}
-}
 
 static int publishProc (autoDaata me) {
 	try {
@@ -817,32 +663,9 @@ static int publishProc (autoDaata me) {
 	}
 }
 
-/***** QUIT *****/
-
-FORM (DO_Quit, U"Confirm Quit", U"Quit") {
-	MUTABLE_LABEL (label, U"You have objects in your list!")
-	OK
-{
-	char32 prompt [300];
-	if (ScriptEditors_dirty ()) {
-		if (theCurrentPraatObjects -> n)
-			Melder_sprint (prompt,300, U"You have objects and unsaved scripts! Do you still want to quit ", praatP.title.get(), U"?");
-		else
-			Melder_sprint (prompt,300, U"You have unsaved scripts! Do you still want to quit ", praatP.title.get(), U"?");
-		SET_STRING (label, prompt)
-	} else if (theCurrentPraatObjects -> n) {
-		Melder_sprint (prompt,300, U"You have objects in your list! Do you still want to quit ", praatP.title.get(), U"?");
-		SET_STRING (label, prompt)
-	} else {
-		praat_exit (0);
-	}
-}
-DO
-	praat_exit (0);
-END }
 
 static void gui_cb_quit (Thing /* me */) {
-	DO_Quit (nullptr, 0, nullptr, nullptr, nullptr, nullptr, false, nullptr);
+	//DO_Quit (nullptr, 0, nullptr, nullptr, nullptr, nullptr, false, nullptr);
 }
 
 void praat_dontUsePictureWindow () { praatP.dontUsePictureWindow = true; }
@@ -1009,16 +832,16 @@ static void setThePraatLocale () {
 }
 
 static void installPraatShellPreferences () {
-	praat_statistics_prefs ();   // number of sessions, memory used...
-	praat_picture_prefs ();   // font...
-	Graphics_prefs ();
-	structEditor     :: f_preferences ();   // erase picture first...
-	structHyperPage  :: f_preferences ();   // font...
+	//praat_statistics_prefs ();   // number of sessions, memory used...
+	//praat_picture_prefs ();   // font...
+	//Graphics_prefs ();
+	//structEditor     :: f_preferences ();   // erase picture first...
+	//structHyperPage  :: f_preferences ();   // font...
 	Site_prefs ();   // print command...
 	Melder_audio_prefs ();   // asynchronicity, silence after...
 	Melder_textEncoding_prefs ();
 	Printer_prefs ();   // paper size, printer command...
-	structTextEditor :: f_preferences ();   // font size...
+	//structTextEditor :: f_preferences ();   // font size...
 }
 
 extern "C" void praatlib_init () {
@@ -1034,19 +857,19 @@ extern "C" void praatlib_init () {
 	praatP.title = Melder_dup (U"Praatlib");
 	theCurrentPraatApplication -> batch = true;
 	Melder_getHomeDir (& homeDir);
-	praat_actions_init ();
-	praat_menuCommands_init ();
-	Thing_recognizeClassesByName (classCollection, classStrings, classManPages, classStringSet, nullptr);
+	//praat_actions_init ();
+	//praat_menuCommands_init ();
+	Thing_recognizeClassesByName (classCollection, classStrings, classStringSet, nullptr);
 	Thing_recognizeClassByOtherName (classStringSet, U"SortedSetOfString");
 	Melder_backgrounding = true;
-	praat_addMenus (nullptr);
-	praat_addFixedButtons (nullptr);
-	praat_addMenus2 ();
+	//praat_addMenus (nullptr);
+	//praat_addFixedButtons (nullptr);
+	//praat_addMenus2 ();
 }
 
 static void injectMessageAndInformationProcs (GuiWindow parent) {
-	Gui_injectMessageProcs (parent);
-	InfoEditor_injectInformationProc ();
+	//Gui_injectMessageProcs (parent);
+	//InfoEditor_injectInformationProc ();
 }
 
 void praat_init (conststring32 title, int argc, char **argv)
@@ -1265,13 +1088,6 @@ void praat_init (conststring32 title, int argc, char **argv)
 		Melder_tracingToFile (& tracingFile);
 	}
 
-	#if defined (NO_GUI)
-		if (! Melder_batch) {
-			fprintf (stderr, "A no-GUI edition of Praat cannot be used interactively. "
-				"Supply \"--run\" and a script file name on the command line.\n");
-			exit (1);
-		}
-	#endif
 	#if defined (UNIX)
 		if (! Melder_batch) {
 			/*
@@ -1302,9 +1118,9 @@ void praat_init (conststring32 title, int argc, char **argv)
 	 * Make room for commands.
 	 */
 	trace (U"initing actions");
-	praat_actions_init ();
+	//praat_actions_init ();
 	trace (U"initing menu commands");
-	praat_menuCommands_init ();
+	//praat_menuCommands_init ();
 
 	GuiWindow raam = nullptr;
 	if (Melder_batch) {
@@ -1319,132 +1135,15 @@ void praat_init (conststring32 title, int argc, char **argv)
 			if (needsQuoting)
 				MelderString_append (& theCurrentPraatApplication -> batchName, U"\"");
 		}
-	} else {
-		trace (U"starting the application");
-		Machine_initLookAndFeel (argc, argv);
-		/*
-		 * Start the application.
-		 */
-		#if gtk
-			trace (U"locale ", Melder_peek8to32 (setlocale (LC_ALL, nullptr)));
-			g_set_application_name (Melder_peek32to8 (title));
-			trace (U"locale ", Melder_peek8to32 (setlocale (LC_ALL, nullptr)));
-		#elif motif
-			argv [0] = Melder_32to8 (praatP. title.get()).transfer();   // argc == 4
-			Gui_setOpenDocumentCallback (cb_openDocument, cb_finishedOpeningDocuments);
-			GuiAppInitialize ("Praatwulg", argc, argv);
-		#elif cocoa
-			//[NSApplication sharedApplication];
-			NSApplication *theApp = [GuiCocoaApplication sharedApplication];
-			/*
-				We want to get rid of the Search field in the help menu.
-				By default, such a Search field will come up automatically when we create a menu with the title "Help".
-				By changing this title to "SomeFakeTitleOfAMenuThatWillNeverBeInstantiated",
-				we trick macOS into thinking that our help menu is called "SomeFakeTitleOfAMenuThatWillNeverBeInstantiated".
-				As a result, the Search field will come up only when we create a menu
-				titled "SomeFakeTitleOfAMenuThatWillNeverBeInstantiated", which is never.
-			*/
-			theApp.helpMenu = [[NSMenu alloc] initWithTitle:@"SomeFakeTitleOfAMenuThatWillNeverBeInstantiated"];
-		#endif
-
-		trace (U"creating and installing the Objects window");
-		char32 objectWindowTitle [100];
-		Melder_sprint (objectWindowTitle,100, praatP.title.get(), U" Objects");
-		double x, y;
-		trace (U"locale ", Melder_peek8to32 (setlocale (LC_ALL, nullptr)));
-		Gui_getWindowPositioningBounds (& x, & y, nullptr, nullptr);
-		trace (U"locale ", Melder_peek8to32 (setlocale (LC_ALL, nullptr)));
-		theCurrentPraatApplication -> topShell = raam =
-			GuiWindow_create (x + 10, y, WINDOW_WIDTH, WINDOW_HEIGHT, 450, 250,
-				objectWindowTitle, gui_cb_quit, nullptr, 0);
-		trace (U"locale ", Melder_peek8to32 (setlocale (LC_ALL, nullptr)));
-		#if motif
-			GuiApp_setApplicationShell (theCurrentPraatApplication -> topShell -> d_xmShell);
-		#endif
-		trace (U"before objects window shows locale ", Melder_peek8to32 (setlocale (LC_ALL, nullptr)));
-		GuiThing_show (raam);
-		trace (U"after objects window shows locale ", Melder_peek8to32 (setlocale (LC_ALL, nullptr)));
 	}
-	Thing_recognizeClassesByName (classCollection, classStrings, classManPages, classStringSet, nullptr);
+
+	Thing_recognizeClassesByName (classCollection, classStrings, classStringSet, nullptr);
 	Thing_recognizeClassByOtherName (classStringSet, U"SortedSetOfString");
-	if (Melder_batch) {
-		Melder_backgrounding = true;
-		trace (U"adding menus without GUI");
-		praat_addMenus (nullptr);
-		trace (U"adding fixed buttons without GUI");
-		praat_addFixedButtons (nullptr);
-	} else {
-
-		#ifdef macintosh
-			AEInstallEventHandler (758934755, 0, (AEEventHandlerProcPtr) (mac_processSignal8), 0, false);   // for receiving sendpraat
-			injectMessageAndInformationProcs (raam);   // BUG: default Melder_assert would call printf recursively!!!
-		#endif
-		trace (U"creating the menu bar in the Objects window");
-		GuiWindow_addMenuBar (raam);
-		praatP.menuBar = raam;
-		praat_addMenus (praatP.menuBar);
-
-		trace (U"creating the object list in the Objects window");
-		GuiLabel_createShown (raam, 3, -250, Machine_getMainWindowMenuBarHeight () + 5, Machine_getMainWindowMenuBarHeight () + 5 + Gui_LABEL_HEIGHT, U"Objects:", 0);
-		praatList_objects = GuiList_create (raam, 0, -250, Machine_getMainWindowMenuBarHeight () + 26, -100, true, U" Objects ");
-		GuiList_setSelectionChangedCallback (praatList_objects, gui_cb_list_selectionChanged, nullptr);
-		GuiThing_show (praatList_objects);
-		praat_addFixedButtons (raam);
-
-		trace (U"creating the dynamic menu in the Objects window");
-		praat_actions_createDynamicMenu (raam);
-		trace (U"showing the Objects window");
-		GuiThing_show (raam);
-	//Melder_fatal (U"stop");
-		#if defined (UNIX) && ! defined (NO_GUI)
-			try {
-				autofile f = Melder_fopen (& pidFile, "a");
-				#if ALLOW_GDK_DRAWING
-					fprintf (f, " %ld", (long_not_integer) GDK_WINDOW_XID (GDK_DRAWABLE (GTK_WIDGET (theCurrentPraatApplication -> topShell -> d_gtkWindow) -> window)));
-				#else
-					fprintf (f, " %ld", (long_not_integer) GDK_WINDOW_XID (gtk_widget_get_window (GTK_WIDGET (theCurrentPraatApplication -> topShell -> d_gtkWindow))));
-				#endif
-				f.close (& pidFile);
-			} catch (MelderError) {
-				Melder_clearError ();
-			}
-		#endif
-		#ifdef UNIX
-			if (! praatP.ignorePreferenceFiles)
-				Preferences_read (& prefsFile);
-		#endif
-		#if ! defined (macintosh)
-			trace (U"initializing the Gui late");
-			injectMessageAndInformationProcs (theCurrentPraatApplication -> topShell);   // Mac: done this earlier
-		#endif
-		Melder_setHelpProc (helpProc);
-	}
 	Data_setPublishProc (publishProc);
-	theCurrentPraatApplication -> manPages = ManPages_create ().releaseToAmbiguousOwner();
-
-	trace (U"creating the Picture window");
-	trace (U"before picture window shows: locale is ", Melder_peek8to32 (setlocale (LC_ALL, nullptr)));
-	if (! praatP.dontUsePictureWindow) praat_picture_init ();
-	trace (U"after picture window shows: locale is ", Melder_peek8to32 (setlocale (LC_ALL, nullptr)));
+	//theCurrentPraatApplication -> manPages = ManPages_create ().releaseToAmbiguousOwner();
 
 	if (unknownCommandLineOption) {
 		Melder_fatal (U"Unrecognized command line option ", unknownCommandLineOption.get());
-	}
-}
-
-static void executeStartUpFile (MelderDir startUpDirectory, conststring32 fileNameHead, conststring32 fileNameTail) {
-	char32 name [256];
-	Melder_sprint (name,256, fileNameHead, programName, fileNameTail);
-	if (! MelderDir_isNull (startUpDirectory)) {   // should not occur on modern systems
-		structMelderFile startUp { };
-		MelderDir_getFile (startUpDirectory, name, & startUp);
-		if (! MelderFile_readable (& startUp))
-			return;   // it's OK if the file doesn't exist
-		try {
-			praat_executeScriptFromFile (& startUp, nullptr);
-		} catch (MelderError) {
-			Melder_flushError (praatP.title.get(), U": start-up file ", & startUp, U" not completed.");
-		}
 	}
 }
 
@@ -1491,14 +1190,15 @@ static void executeStartUpFile (MelderDir startUpDirectory, conststring32 fileNa
 	#endif
 #endif
 
+
 void praat_run () {
 	trace (U"adding menus, second round");
-	praat_addMenus2 ();
+	//praat_addMenus2 ();
 	trace (U"locale is ", Melder_peek8to32 (setlocale (LC_ALL, nullptr)));
 
 	trace (U"adding the Quit command");
-	praat_addMenuCommand (U"Objects", U"Praat", U"-- quit --", nullptr, 0, nullptr);
-	praat_addMenuCommand (U"Objects", U"Praat", U"Quit", nullptr, praat_UNHIDABLE | 'Q' | praat_NO_API, DO_Quit);
+	//praat_addMenuCommand (U"Objects", U"Praat", U"-- quit --", nullptr, 0, nullptr);
+	//praat_addMenuCommand (U"Objects", U"Praat", U"Quit", nullptr, praat_UNHIDABLE | 'Q' | praat_NO_API, DO_Quit);
 
 	trace (U"read the preferences file, and notify those who want to be notified of this");
 	/* ...namely, those who already have a window (namely, the Picture window),
@@ -1507,9 +1207,9 @@ void praat_run () {
 	 */
 	if (! praatP.ignorePreferenceFiles) {
 		Preferences_read (& prefsFile);
-		if (! praatP.dontUsePictureWindow)
-			praat_picture_prefsChanged ();
-		praat_statistics_prefsChanged ();
+		//if (! praatP.dontUsePictureWindow)
+			//praat_picture_prefsChanged ();
+		//praat_statistics_prefsChanged ();
 	}
 
 	praatP.phase = praat_STARTING_UP;
@@ -1521,13 +1221,13 @@ void praat_run () {
 	#if defined (UNIX) || defined (macintosh)
 		structMelderDir usrLocal { };
 		Melder_pathToDir (U"/usr/local", & usrLocal);
-		executeStartUpFile (& usrLocal, U"", U"-startUp");
+		//executeStartUpFile (& usrLocal, U"", U"-startUp");
 	#endif
 	#if defined (UNIX) || defined (macintosh)
-		executeStartUpFile (& homeDir, U".", U"-user-startUp");   // not on Windows (empty file name error)
+		//executeStartUpFile (& homeDir, U".", U"-user-startUp");   // not on Windows (empty file name error)
 	#endif
 	#if defined (UNIX) || defined (macintosh) || defined (_WIN32)
-		executeStartUpFile (& homeDir, U"", U"-user-startUp");
+		//executeStartUpFile (& homeDir, U"", U"-user-startUp");
 	#endif
 
 	if (! MelderDir_isNull (& praatDir) && ! praatP.ignorePlugins) {
@@ -1549,7 +1249,7 @@ void praat_run () {
 					if (MelderFile_readable (& plugin)) {
 						Melder_backgrounding = true;
 						try {
-							praat_executeScriptFromFile (& plugin, nullptr);
+							//praat_executeScriptFromFile (& plugin, nullptr);
 						} catch (MelderError) {
 							Melder_flushError (praatP.title.get(), U": plugin ", & plugin, U" contains an error.");
 						}
@@ -1773,116 +1473,6 @@ void praat_run () {
 		"sizeof(integer) should equal the size of a pointer");
 	static_assert (sizeof (off_t) >= 8,
 		"sizeof(off_t) is less than 8. Compile Praat with -D_FILE_OFFSET_BITS=64.");
-
-	if (Melder_batch) {
-		if (thePraatStandAloneScriptText) {
-			try {
-				praat_executeScriptFromText (thePraatStandAloneScriptText);
-				praat_exit (0);
-			} catch (MelderError) {
-				Melder_flushError (praatP.title.get(), U": stand-alone script session interrupted.");
-				praat_exit (-1);
-			}
-		} else if (praatP.hasCommandLineInput) {
-			try {
-				praat_executeCommandFromStandardInput (praatP.title.get());
-				praat_exit (0);
-			} catch (MelderError) {
-				Melder_flushError (praatP.title.get(), U": command line session interrupted.");
-				praat_exit (-1);
-			}
-		} else {
-			try {
-				//Melder_casual (U"Script <<", theCurrentPraatApplication -> batchName.string, U">>");
-				praat_executeScriptFromFileNameWithArguments (theCurrentPraatApplication -> batchName.string);
-				praat_exit (0);
-			} catch (MelderError) {
-				Melder_flushError (praatP.title.get(), U": script command <<",
-					theCurrentPraatApplication -> batchName.string, U">> not completed.");
-				praat_exit (-1);
-			}
-		}
-	} else /* GUI */ {
-		if (! praatP.ignorePreferenceFiles) {
-			trace (U"reading the added script buttons");
-			/* Each line separately: every error should be ignored.
-			 */
-			praatP.phase = praat_READING_BUTTONS;
-			{// scope
-				autostring32 buttons;
-				try {
-					buttons = MelderFile_readText (& buttonsFile);
-				} catch (MelderError) {
-					Melder_clearError ();
-				}
-				if (buttons) {
-					char32 *line = buttons.get();
-					for (;;) {
-						char32 *newline = str32chr (line, U'\n');
-						if (newline) *newline = U'\0';
-						try {
-							praat_executeCommand (nullptr, line);
-						} catch (MelderError) {
-							Melder_clearError ();   // ignore this line, but not necessarily the next
-						}
-						if (! newline)
-							break;
-						line = newline + 1;
-					}
-				}
-			}
-		}
-
-		trace (U"sorting the commands");
-		trace (U"locale is ", Melder_peek8to32 (setlocale (LC_ALL, nullptr)));
-		praat_sortMenuCommands ();
-		praat_sortActions ();
-
-		praatP.phase = praat_HANDLING_EVENTS;
-
-		if (praatP.userWantsToOpen) {
-			for (; praatP.argumentNumber < praatP.argc; praatP.argumentNumber ++) {
-				//Melder_casual (U"File to open <<", Melder_peek8to32 (theArgv [iarg]), U">>");
-				/*
-					The use double-clicked a Praat file,
-					or dropped a file on the Praat icon,
-					while Praat was not yet running.
-				*/
-				autostring32 text = Melder_dup (Melder_cat (U"Read from file... ",
-															Melder_peek8to32 (praatP.argv [praatP.argumentNumber])));
-				try {
-					praat_executeScriptFromText (text.get());
-				} catch (MelderError) {
-					Melder_flushError ();
-				}
-			}
-		}
-
-		#if gtk
-			//gtk_widget_add_events (G_OBJECT (theCurrentPraatApplication -> topShell), GDK_ALL_EVENTS_MASK);
-			trace (U"install GTK key snooper");
-			trace (U"locale is ", Melder_peek8to32 (setlocale (LC_ALL, nullptr)));
-			#if ALLOW_GDK_DRAWING
-				g_signal_connect (G_OBJECT (theCurrentPraatApplication -> topShell -> d_gtkWindow), "client-event",
-					G_CALLBACK (cb_userMessage), nullptr);
-			#endif
-			signal (SIGUSR1, cb_sigusr1);
-			#if ALLOW_GDK_DRAWING
-				gtk_key_snooper_install (theKeySnooper, 0);
-			#endif
-			trace (U"start the GTK event loop");
-			trace (U"locale is ", Melder_peek8to32 (setlocale (LC_ALL, nullptr)));
-			gtk_main ();
-		#elif motif
-			for (;;) {
-				XEvent event;
-				GuiNextEvent (& event);
-				XtDispatchEvent (& event);
-			}
-		#elif cocoa
-			[NSApp run];
-		#endif
-	}
 }
 
 /* End of file praat.cpp */

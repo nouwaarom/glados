@@ -22,6 +22,7 @@
 /* If out of memory, the non-f versions throw an error message (like "Out of memory"); */
 /* the f versions open up a rainy day fund or crash Praat. */
 /* These functions also maintain a count of the total number of blocks allocated. */
+#include "melder_int.h"
 
 void Melder_alloc_init ();   // to be called around program start-up
 void * _Melder_malloc (int64 size);

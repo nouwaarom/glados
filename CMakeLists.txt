@@ -1,0 +1,380 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(Praat)
+
+include_directories(dwsys)
+include_directories(dwtools)
+include_directories(external/clapack)
+include_directories(external/gsl)
+include_directories(external/flac)
+include_directories(external/mp3)
+include_directories(fon)
+include_directories(sys)
+include_directories(kar)
+include_directories(stat)
+include_directories(LPC)
+include_directories(melder)
+
+
+add_executable(praat_glados
+    main/main.cpp
+
+    LPC/LPC.cpp
+    LPC/Sound_and_LPC.cpp
+    LPC/LPC_and_Polynomial.cpp
+
+    external/flac/flac_bitmath.c
+    external/flac/flac_bitreader.c
+    external/flac/flac_bitwriter.c
+    external/flac/flac_cpu.c
+    external/flac/flac_crc.c
+    external/flac/flac_fixed.c
+    external/flac/flac_float.c
+    external/flac/flac_format.c
+    external/flac/flac_lpc.c
+    external/flac/flac_md5.c
+    external/flac/flac_memory.c
+    external/flac/flac_metadata_iterators.c
+    external/flac/flac_metadata_object.c
+    external/flac/flac_stream_decoder.c
+    external/flac/flac_stream_encoder.c
+    external/flac/flac_stream_encoder_framing.c
+    external/flac/flac_window.c
+
+    external/mp3/mad_bit.c
+    external/mp3/mad_decoder.c
+    external/mp3/mad_fixed.c
+    external/mp3/mad_frame.c
+    external/mp3/mad_huffman.c
+    external/mp3/mad_layer12.c
+    external/mp3/mad_layer3.c
+    external/mp3/mad_stream.c
+    external/mp3/mad_synth.c
+    external/mp3/mad_timer.c
+    external/mp3/mad_version.c
+    external/mp3/mp3.cpp
+
+    external/clapack/blas.cpp
+    external/clapack/lapack.cpp
+    external/clapack/lapack_dg.cpp
+    external/clapack/lapack_dlaq.cpp
+    external/clapack/lapack_dlar.cpp
+    external/clapack/lapack_ds.cpp
+    external/clapack/lapack_dt.cpp
+
+    external/portaudio/pa_allocation.c
+    #external/portaudio/pa_asio.cpp
+    external/portaudio/pa_converters.c
+    external/portaudio/pa_cpuload.c
+    external/portaudio/pa_debugprint.c
+    external/portaudio/pa_dither.c
+    external/portaudio/pa_front.c
+    external/portaudio/pa_jack.c
+    external/portaudio/pa_linux_alsa.c
+    #external/portaudio/pa_linux_asihpi.c
+    external/portaudio/pa_process.c
+    external/portaudio/pa_ringbuffer.c
+    #external/portaudio/pa_skeleton.c
+    external/portaudio/pa_stream.c
+    external/portaudio/pa_trace.c
+    external/portaudio/pa_unix_hostapis.c
+    #external/portaudio/pa_unix_oss.c
+    external/portaudio/pa_unix_util.c
+    #external/portaudio/pa_x86_plain_converters.c
+
+    dwsys/ChebyshevSeries.cpp
+    dwsys/Collection_extensions.cpp
+    dwsys/Command.cpp
+    dwsys/DoublyLinkedList.cpp
+    dwsys/Eigen.cpp
+    dwsys/FileInMemory.cpp
+    dwsys/FileInMemoryManager.cpp
+    dwsys/FileInMemorySet.cpp
+    dwsys/FunctionSeries.cpp
+    dwsys/Graphics_extensions.cpp
+    dwsys/Index.cpp
+    dwsys/LegendreSeries.cpp
+    dwsys/MAT_numerics.cpp
+    dwsys/NMF.cpp
+    dwsys/NUM2.cpp
+    dwsys/NUMcomplex.cpp
+    dwsys/NUMfft_d.cpp
+    dwsys/NUMhuber.cpp
+    dwsys/NUMmachar.cpp
+    dwsys/NUMmathlib.cpp
+    dwsys/NUMsort2.cpp
+    dwsys/NUMstring.cpp
+    dwsys/Permutation_and_Index.cpp
+    dwsys/Permutation.cpp
+    dwsys/Polynomial.cpp
+    dwsys/Roots.cpp
+    dwsys/Spline.cpp
+    dwsys/SVD.cpp
+    dwtools/Sound_extensions.cpp
+    dwtools/TextGrid_extensions.cpp
+    dwtools/Intensity_extensions.cpp
+    dwtools/Spectrum_extensions.cpp
+    dwtools/PatternList.cpp
+
+    #sys/ButtonEditor.cpp
+    sys/Collection.cpp
+    sys/Data.cpp
+    #sys/DataEditor.cpp
+    #sys/DemoEditor.cpp
+    #sys/Editor.cpp
+    sys/Formula.cpp
+    sys/Graphics_altitude.cpp
+    sys/Graphics_colour.cpp
+    sys/Graphics.cpp
+    sys/Graphics_grey.cpp
+    sys/Graphics_image.cpp
+    sys/Graphics_linesAndAreas.cpp
+    sys/Graphics_mouse.cpp
+    sys/GraphicsPostscript.cpp
+    sys/Graphics_record.cpp
+    sys/GraphicsScreen.cpp
+    sys/Graphics_surface.cpp
+    sys/Graphics_text.cpp
+    sys/Graphics_utils.cpp
+    #sys/GuiButton.cpp
+    #sys/GuiCheckButton.cpp
+    #sys/GuiControl.cpp
+    #sys/Gui.cpp
+    #sys/GuiDialog.cpp
+    #sys/GuiDrawingArea.cpp
+    #sys/GuiFileSelect.cpp
+    #sys/GuiForm.cpp
+    #sys/GuiLabel.cpp
+    #sys/GuiList.cpp
+    #sys/GuiMenu.cpp
+    #sys/GuiMenuItem.cpp
+    #sys/Gui_messages.cpp
+    #sys/GuiObject.cpp
+    #sys/GuiOptionMenu.cpp
+    #sys/GuiProgressBar.cpp
+    #sys/GuiRadioButton.cpp
+    #sys/GuiScale.cpp
+    #sys/GuiScrollBar.cpp
+    #sys/GuiScrolledWindow.cpp
+    #sys/GuiShell.cpp
+    #sys/GuiText.cpp
+    #sys/GuiThing.cpp
+    #sys/GuiWindow.cpp
+    #sys/HyperPage.cpp
+    #sys/InfoEditor.cpp
+    sys/Interpreter.cpp
+    sys/machine.cpp
+    #sys/ManPage.cpp
+    #sys/ManPages.cpp
+    #sys/Manual.cpp
+    sys/motifEmulator.cpp
+    sys/Picture.cpp
+    #sys/praat_actions.cpp
+    sys/praat.cpp
+    #sys/praat_library.cpp
+    #sys/praat_logo.cpp
+    #sys/praat_menuCommands.cpp
+    #sys/praat_objectMenus.cpp
+    #sys/praat_picture.cpp
+    #sys/praat_script.cpp
+    #sys/praat_statistics.cpp
+    sys/Preferences.cpp
+    sys/Printer.cpp
+    sys/Script.cpp
+    #sys/ScriptEditor.cpp
+    sys/Simple.cpp
+    sys/site.cpp
+    sys/Strings.cpp
+    #sys/StringsEditor.cpp
+    #sys/TextEditor.cpp
+    sys/Thing.cpp
+    #sys/Ui.cpp
+    #sys/UiFile.cpp
+    #sys/UiPause.cpp
+
+    stat/Table.cpp
+    stat/TableOfReal.cpp
+
+    melder/abcio.cpp
+    melder/complex.cpp
+    melder/MAT.cpp
+    melder/melder_alloc.cpp
+    melder/melder_atof.cpp
+    melder/melder_audio.cpp
+    melder/melder_audiofiles.cpp
+    melder/melder_colour.cpp
+    melder/melder_console.cpp
+    melder/melder.cpp
+    melder/melder_debug.cpp
+    melder/melder_error.cpp
+    melder/melder_fatal.cpp
+    melder/MelderFile.cpp
+    melder/melder_files.cpp
+    melder/melder_ftoa.cpp
+    melder/melder_help.cpp
+    melder/melder_info.cpp
+    melder/melder_play.cpp
+    melder/melder_progress.cpp
+    melder/melder_quantity.cpp
+    melder/MelderReadText.cpp
+    melder/melder_search.cpp
+    melder/melder_sort.cpp
+    melder/melder_strings.cpp
+    melder/melder_sysenv.cpp
+    melder/melder_tensorio.cpp
+    melder/melder_textencoding.cpp
+    melder/melder_time.cpp
+    melder/melder_warning.cpp
+    melder/NUM.cpp
+    melder/NUMear.cpp
+    melder/NUMfilter.cpp
+    melder/NUMinterpol.cpp
+    melder/NUMlinprog.cpp
+    melder/NUMmath.cpp
+    melder/NUMmetrics.cpp
+    melder/NUMrandom.cpp
+    melder/NUMspecfunc.cpp
+    melder/regularExp.cpp
+    melder/STR.cpp
+    melder/STRVEC.cpp
+    melder/VEC.cpp
+
+    kar/longchar.cpp
+
+    fon/AmplitudeTier.cpp
+    #fon/AmplitudeTierEditor.cpp
+    fon/AnyTier.cpp
+    fon/Cochleagram_and_Excitation.cpp
+    fon/Cochleagram.cpp
+    #fon/Corpus.cpp
+    #fon/Distributions_and_Transition.cpp
+    fon/DurationTier.cpp
+    #fon/DurationTierEditor.cpp
+    fon/Excitation.cpp
+    fon/Excitation_to_Formant.cpp
+    #fon/ExperimentMFC.cpp
+    fon/Formant.cpp
+    fon/FormantGrid.cpp
+    #fon/FormantGridEditor.cpp
+    fon/FormantTier.cpp
+    fon/FujisakiPitch.cpp
+    fon/Function.cpp
+    #fon/FunctionEditor.cpp
+    fon/Harmonicity.cpp
+    fon/Image.cpp
+    fon/Intensity.cpp
+    fon/IntensityTier.cpp
+    #fon/IntensityTierEditor.cpp
+    fon/Label.cpp
+    fon/LongSound.cpp
+    fon/Ltas.cpp
+    fon/Ltas_to_SpectrumTier.cpp
+    fon/Manipulation.cpp
+    #fon/ManipulationEditor.cpp
+    #fon/manual_annotation.cpp
+    #fon/manual_exampleSound.cpp
+    #fon/manual_ExperimentMFC.cpp
+    #fon/manual_Fon.cpp
+    #fon/manual_formant.cpp
+    #fon/manual_glossary.cpp
+    #fon/manual_Manual.cpp
+    #fon/manual_Picture.cpp
+    #fon/manual_pitch.cpp
+    #fon/manual_programming.cpp
+    #fon/manual_references.cpp
+    #fon/manual_Sampling.cpp
+    #fon/manual_Script.cpp
+    #fon/manual_sound.cpp
+    #fon/manual_soundFiles.cpp
+    #fon/manual_spectrum.cpp
+    #fon/manual_tutorials.cpp
+    #fon/manual_voice.cpp
+    fon/Matrix_and_Pitch.cpp
+    fon/Matrix_and_PointProcess.cpp
+    fon/Matrix_and_Polygon.cpp
+    fon/Matrix.cpp
+    #fon/Movie.cpp
+    #fon/MovieWindow.cpp
+    fon/ParamCurve.cpp
+    #fon/Photo.cpp
+    fon/Pitch_AnyTier_to_PitchTier.cpp
+    fon/Pitch.cpp
+    #fon/PitchEditor.cpp
+    fon/Pitch_Intensity.cpp
+    fon/PitchTier.cpp
+    #fon/PitchTierEditor.cpp
+    fon/PitchTier_to_PointProcess.cpp
+    fon/PitchTier_to_Sound.cpp
+    fon/Pitch_to_PitchTier.cpp
+    fon/Pitch_to_PointProcess.cpp
+    fon/Pitch_to_Sound.cpp
+    #fon/PointEditor.cpp
+    fon/PointProcess_and_Sound.cpp
+    fon/PointProcess.cpp
+    fon/Polygon.cpp
+    #fon/praat_ExperimentMFC.cpp
+    #fon/praat_Fon.cpp
+    #fon/praat_Matrix.cpp
+    #fon/praat_Sound.cpp
+    #fon/Praat_tests.cpp
+    #fon/praat_TextGrid_init.cpp
+    #fon/praat_Tiers.cpp
+    #fon/praat_TimeFrameSampled.cpp
+    #fon/praat_TimeFunction.cpp
+    #fon/praat_TimeTier.cpp
+    fon/RealTier.cpp
+    #fon/RealTierEditor.cpp
+    #fon/RunnerMFC.cpp
+    fon/Sampled.cpp
+    fon/SampledXY.cpp
+    fon/Sound_and_Spectrogram.cpp
+    fon/Sound_and_Spectrum.cpp
+    fon/Sound_audio.cpp
+    fon/Sound.cpp
+    #fon/SoundEditor.cpp
+    fon/Sound_enhance.cpp
+    fon/Sound_files.cpp
+    fon/Sound_PointProcess.cpp
+    #fon/SoundRecorder.cpp
+    fon/SoundSet.cpp
+    fon/Sound_to_Cochleagram.cpp
+    fon/Sound_to_Formant.cpp
+    fon/Sound_to_Harmonicity.cpp
+    fon/Sound_to_Harmonicity_GNE.cpp
+    fon/Sound_to_Intensity.cpp
+    fon/Sound_to_Pitch.cpp
+    fon/Sound_to_PointProcess.cpp
+    fon/Spectrogram.cpp
+    #fon/SpectrogramEditor.cpp
+    fon/Spectrum_and_Spectrogram.cpp
+    fon/Spectrum.cpp
+    #fon/SpectrumEditor.cpp
+    fon/SpectrumTier.cpp
+    fon/Spectrum_to_Excitation.cpp
+    fon/Spectrum_to_Formant.cpp
+    #fon/SpellingChecker.cpp
+    fon/TextGrid.cpp
+    #fon/TextGridEditor.cpp
+    #fon/TextGrid_Sound.cpp
+    #fon/TimeSoundAnalysisEditor.cpp
+    #fon/TimeSoundEditor.cpp
+    fon/Transition.cpp
+    fon/Vector.cpp
+    fon/VocalTract.cpp
+    fon/VocalTract_to_Spectrum.cpp
+    fon/VoiceAnalysis.cpp
+    fon/WordList.cpp
+        main/festifuck.cpp)
+
+set_property(TARGET praat_glados PROPERTY CXX_STANDARD 17)
+set_property(TARGET praat_glados PROPERTY C_STANDARD 11)
+
+target_link_libraries(praat_glados jack pthread glpk gsl Festival estbase estools eststring pulse)
+
+add_compile_definitions(linux)
+add_compile_definitions(UNIX)
+add_compile_definitions(HAVE_PULSEAUDIO)
+add_compile_definitions(NO_NETWORK)
+add_compile_definitions(NO_GRAPHICS)
+add_compile_definitions(FILE_OFFSET_BITS=64)
+

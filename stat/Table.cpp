@@ -1839,6 +1839,7 @@ void Table_scatterPlot (Table me, Graphics g, integer xcolumn, integer ycolumn,
 	}
 }
 
+/*
 void Table_drawEllipse_e (Table me, Graphics g, integer xcolumn, integer ycolumn,
 	double xmin, double xmax, double ymin, double ymax, double numberOfSigmas, bool garnish)
 {
@@ -1874,6 +1875,7 @@ void Table_drawEllipse_e (Table me, Graphics g, integer xcolumn, integer ycolumn
 		Melder_clearError ();   // drawing errors shall be ignored
 	}
 }
+*/
 
 static conststring32 visibleString (conststring32 s) {
 	return ( s && s [0] != U'\0' ? s : U"?" );

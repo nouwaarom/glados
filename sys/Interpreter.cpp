@@ -283,129 +283,6 @@ integer Interpreter_readParameters (Interpreter me, mutablestring32 text) {
 	return npar;
 }
 
-autoUiForm Interpreter_createForm (Interpreter me, GuiWindow parent, conststring32 path,
-	void (*okCallback) (UiForm, integer, Stackel, conststring32, Interpreter, conststring32, bool, void *), void *okClosure,
-	bool selectionOnly)
-{
-	autoUiForm form = UiForm_create (parent,
-		Melder_cat (selectionOnly ? U"Run script (selection only): " : U"Run script: ", my dialogTitle),
-		okCallback, okClosure, nullptr, nullptr);
-	UiField radio = nullptr;
-	if (path)
-		UiForm_addText (form.get(), nullptr, nullptr, U"$file", path);
-	for (int ipar = 1; ipar <= my numberOfParameters; ipar ++) {
-		/*
-		 * Convert underscores to spaces.
-		 */
-		char32 parameter [100], *p = & parameter [0];
-		str32cpy (parameter, my parameters [ipar]);
-		while (*p) { if (*p == U'_') *p = U' '; p ++; }
-		switch (my types [ipar]) {
-			case Interpreter_WORD:
-				UiForm_addWord (form.get(), nullptr, nullptr, parameter, my arguments [ipar].get()); break;
-			case Interpreter_REAL:
-				UiForm_addReal (form.get(), nullptr, nullptr, parameter, my arguments [ipar].get()); break;   // TODO: an address of a real variable
-			case Interpreter_POSITIVE:
-				UiForm_addPositive (form.get(), nullptr, nullptr, parameter, my arguments [ipar].get()); break;
-			case Interpreter_INTEGER:
-				UiForm_addInteger (form.get(), nullptr, nullptr, parameter, my arguments [ipar].get()); break;
-			case Interpreter_NATURAL:
-				UiForm_addNatural (form.get(), nullptr, nullptr, parameter, my arguments [ipar].get()); break;
-			case Interpreter_BOOLEAN:
-				UiForm_addBoolean (form.get(), nullptr, nullptr, parameter, my arguments [ipar] [0] == U'1' ||
-					my arguments [ipar] [0] == U'y' || my arguments [ipar] [0] == U'Y' ||
-					(my arguments [ipar] [0] == U'o' && my arguments [ipar] [1] == U'n')); break;
-			case Interpreter_SENTENCE:
-				UiForm_addSentence (form.get(), nullptr, nullptr, parameter, my arguments [ipar].get()); break;
-			case Interpreter_TEXT:
-				UiForm_addText (form.get(), nullptr, nullptr, parameter, my arguments [ipar].get()); break;
-			case Interpreter_VECTOR:
-				UiForm_addNumvec (form.get(), nullptr, nullptr, parameter, my arguments [ipar].get()); break;
-			case Interpreter_MATRIX:
-				UiForm_addNummat (form.get(), nullptr, nullptr, parameter, my arguments [ipar].get()); break;
-			case Interpreter_CHOICE:
-				radio = UiForm_addRadio (form.get(), nullptr, nullptr, nullptr, parameter, Melder_atoi (my arguments [ipar].get()), 1); break;
-			case Interpreter_OPTIONMENU:
-				radio = UiForm_addOptionMenu (form.get(), nullptr, nullptr, nullptr, parameter, Melder_atoi (my arguments [ipar].get()), 1); break;
-			case Interpreter_BUTTON:
-				if (radio) UiRadio_addButton (radio, my arguments [ipar].get()); break;
-			case Interpreter_OPTION:
-				if (radio) UiOptionMenu_addButton (radio, my arguments [ipar].get()); break;
-			case Interpreter_COMMENT:
-				UiForm_addLabel (form.get(), nullptr, my arguments [ipar].get()); break;
-			default:
-				UiForm_addWord (form.get(), nullptr, nullptr, parameter, my arguments [ipar].get()); break;
-		}
-		/*
-		 * Strip parentheses and colon off parameter name.
-		 */
-		if ((p = str32chr (my parameters [ipar], U'(')) != nullptr) {
-			*p = U'\0';
-			if (p - my parameters [ipar] > 0 && p [-1] == U'_') p [-1] = U'\0';
-		}
-		p = my parameters [ipar];
-		if (*p != U'\0' && p [str32len (p) - 1] == U':') p [str32len (p) - 1] = U'\0';
-	}
-	UiForm_finish (form.get());
-	return form;
-}
-
-void Interpreter_getArgumentsFromDialog (Interpreter me, UiForm dialog) {
-	for (int ipar = 1; ipar <= my numberOfParameters; ipar ++) {
-		char32 parameter [100], *p;
-		/*
-		 * Strip parentheses and colon off parameter name.
-		 */
-		if ((p = str32chr (my parameters [ipar], U'(')) != nullptr) {
-			*p = U'\0';
-			if (p - my parameters [ipar] > 0 && p [-1] == U'_') p [-1] = U'\0';
-		}
-		p = my parameters [ipar];
-		if (*p != U'\0' && p [str32len (p) - 1] == U':') p [str32len (p) - 1] = U'\0';
-		/*
-		 * Convert underscores to spaces.
-		 */
-		str32cpy (parameter, my parameters [ipar]);
-		p = & parameter [0]; while (*p) { if (*p == U'_') *p = U' '; p ++; }
-		switch (my types [ipar]) {
-			case Interpreter_REAL:
-			case Interpreter_POSITIVE: {
-				double value = UiForm_getReal_check (dialog, parameter);
-				my arguments [ipar] = autostring32 (40, true);
-				Melder_sprint (my arguments [ipar].get(),40+1, value);
-				break;
-			}
-			case Interpreter_INTEGER:
-			case Interpreter_NATURAL:
-			case Interpreter_BOOLEAN: {
-				integer value = UiForm_getInteger (dialog, parameter);
-				my arguments [ipar] = autostring32 (40, true);
-				Melder_sprint (my arguments [ipar].get(),40+1, value);
-				break;
-			}
-			case Interpreter_CHOICE:
-			case Interpreter_OPTIONMENU: {
-				integer integerValue = 0;
-				integerValue = UiForm_getInteger (dialog, parameter);
-				conststring32 stringValue = UiForm_getString (dialog, parameter);
-				my arguments [ipar] = autostring32 (40, true);
-				Melder_sprint (my arguments [ipar].get(),40+1, integerValue);
-				Melder_sprint (my choiceArguments [ipar],100, stringValue);
-				break;
-			}
-			case Interpreter_BUTTON:
-			case Interpreter_OPTION:
-			case Interpreter_COMMENT:
-				break;
-			default: {
-				conststring32 value = UiForm_getString (dialog, parameter);
-				my arguments [ipar] = Melder_dup_f (value);
-				break;
-			}
-		}
-	}
-}
-
 void Interpreter_getArgumentsFromString (Interpreter me, conststring32 arguments) {
 	int size = my numberOfParameters;
 	integer length = str32len (arguments);
@@ -1186,7 +1063,7 @@ static void assignToNumericVectorElement (Interpreter me, char32 *& p, const cha
 		MelderString_empty (& valueString);
 		autoMelderDivertInfo divert (& valueString);
 		MelderString_appendCharacter (& valueString, 1);   // will be overwritten by something totally different if any MelderInfo function is called...
-		int status = praat_executeCommand (me, p);
+		int status = 0; //praat_executeCommand (me, p);
 		if (status == 0) {
 			value = undefined;
 		} else if (valueString.string [0] == 1) {   // ...not overwritten by any MelderInfo function? then the return value will be the selected object
@@ -1294,7 +1171,7 @@ static void assignToNumericMatrixElement (Interpreter me, char32 *& p, const cha
 		MelderString_empty (& valueString);
 		autoMelderDivertInfo divert (& valueString);
 		MelderString_appendCharacter (& valueString, 1);   // will be overwritten by something totally different if any MelderInfo function is called...
-		int status = praat_executeCommand (me, p);
+		int status = 0; //praat_executeCommand (me, p);
 		if (status == 0) {
 			value = undefined;
 		} else if (valueString.string [0] == 1) {   // ...not overwritten by any MelderInfo function? then the return value will be the selected object
@@ -1346,10 +1223,7 @@ void Interpreter_run (Interpreter me, char32 *text) {
 		/*
 			The "environment" is null if we are in the Praat shell, or an editor otherwise.
 		*/
-		if (my editorClass)
-			praatP. editor = praat_findEditorFromString (my environmentName.get());
-		else
-			praatP. editor = nullptr;
+        praatP. editor = nullptr;
 		/*
 			Start.
 		*/
@@ -1544,7 +1418,7 @@ void Interpreter_run (Interpreter me, char32 *text) {
 				c0 = command2.string [0];   // resume in order to allow things like 'c$' = 5
 				if ((! Melder_isLetter (c0) || Melder_isUpperCaseLetter (c0)) && c0 != U'@' &&
 						! (c0 == U'.' && Melder_isLetter (command2.string [1]) && ! Melder_isUpperCaseLetter (command2.string [1]))) {
-					praat_executeCommand (me, command2.string);
+				//praat_executeCommand (me, command2.string);
 				/*
 				 * Interpret control flow and variables.
 				 */
@@ -1756,7 +1630,7 @@ void Interpreter_run (Interpreter me, char32 *text) {
 							/*
 								Make sure that lines like "echo = 3" will not be regarded as assignments.
 							*/
-							praat_executeCommand (me, command2.string);
+							//praat_executeCommand (me, command2.string);
 						} else
 							fail = true;
 						break;
@@ -1948,7 +1822,7 @@ void Interpreter_run (Interpreter me, char32 *text) {
 							 * Make sure that lines like "print = 3" will not be regarded as assignments.
 							 */
 							if (command2.string [5] == U' ' || (str32nequ (command2.string + 5, U"line", 4) && (command2.string [9] == U' ' || command2.string [9] == U'\0'))) {
-								praat_executeCommand (me, command2.string);
+								//praat_executeCommand (me, command2.string);
 							} else
 								fail = true;
 						} else
@@ -2172,7 +2046,7 @@ void Interpreter_run (Interpreter me, char32 *text) {
 							*/
 							MelderString_empty (& valueString);   // empty because command may print nothing; also makes sure that valueString.string exists
 							autoMelderDivertInfo divert (& valueString);
-							int status = praat_executeCommand (me, p);
+							int status = 0; //praat_executeCommand (me, p);
 							InterpreterVariable var = Interpreter_lookUpVariable (me, variableName);
 							var -> stringValue = Melder_dup (status ? valueString.string : U"");
 						} else {
@@ -2226,7 +2100,7 @@ void Interpreter_run (Interpreter me, char32 *text) {
 									/*
 										Statement like: values## = Get all values
 									*/
-									praat_executeCommand (me, p);
+									//praat_executeCommand (me, p);
 									InterpreterVariable var = Interpreter_lookUpVariable (me, matrixName.string);
 									var -> numericMatrixValue = theInterpreterNummat.move();
 								} else {
@@ -2343,7 +2217,7 @@ void Interpreter_run (Interpreter me, char32 *text) {
 									/*
 										Statement like: times# = Get all times
 									*/
-									praat_executeCommand (me, p);
+									//praat_executeCommand (me, p);
 									InterpreterVariable var = Interpreter_lookUpVariable (me, vectorName.string);
 									var -> numericVectorValue = theInterpreterNumvec.move();
 								} else {
@@ -2448,7 +2322,7 @@ void Interpreter_run (Interpreter me, char32 *text) {
 							/*
 								Command ends here: it may be a PraatShell command.
 							*/
-							praat_executeCommand (me, command2.string);
+							//praat_executeCommand (me, command2.string);
 							continue;   // next line
 						}
 						char32 *endOfVariable = p;
@@ -2511,7 +2385,7 @@ void Interpreter_run (Interpreter me, char32 *text) {
 							/*
 								Not an assignment: perhaps a PraatShell command (select, echo, execute, pause ...).
 							*/
-							praat_executeCommand (me, variableName);
+							//praat_executeCommand (me, variableName);
 							continue;   // next line
 						}
 						p += ( typeOfAssignment == 0 ? 1 : 2 );
@@ -2532,7 +2406,7 @@ void Interpreter_run (Interpreter me, char32 *text) {
 							MelderString_empty (& valueString);
 							autoMelderDivertInfo divert (& valueString);
 							MelderString_appendCharacter (& valueString, 1);   // will be overwritten by something totally different if any MelderInfo function is called...
-							int status = praat_executeCommand (me, p);
+							int status = 0; //praat_executeCommand (me, p);
 							if (status == 0) {
 								value = undefined;
 							} else if (valueString.string [0] == 1) {   // ...not overwritten by any MelderInfo function? then the return value will be the selected object

@@ -201,7 +201,7 @@ autoPicture Picture_create (GuiDrawingArea drawingArea, bool sensitive) {
 		if (drawingArea) {
 			/* The drawing area must have been realized; see manual at XtWindow. */
 			my graphics = Graphics_create_xmdrawingarea (my drawingArea);
-			GuiDrawingArea_setExposeCallback (my drawingArea, gui_drawingarea_cb_expose, me.get());
+			//GuiDrawingArea_setExposeCallback (my drawingArea, gui_drawingarea_cb_expose, me.get());
 		} else {
 			/*
 			 * Create a dummy Graphics.
@@ -213,7 +213,7 @@ autoPicture Picture_create (GuiDrawingArea drawingArea, bool sensitive) {
 		if (my sensitive) {
 			my selectionGraphics = Graphics_create_xmdrawingarea (my drawingArea);
 			Graphics_setWindow (my selectionGraphics.get(), 0, 12, 0, 12);
-			GuiDrawingArea_setClickCallback (my drawingArea, gui_drawingarea_cb_click, me.get());
+			//GuiDrawingArea_setClickCallback (my drawingArea, gui_drawingarea_cb_click, me.get());
 		}
 		Graphics_startRecording (my graphics.get());
 		return me;

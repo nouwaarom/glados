@@ -18,6 +18,8 @@
 
 #include "../sys/praat.h"
 #include "../sys/praat_version.h"
+#include "Sound.h"
+#include "Manipulation.h"
 
 static void logo (Graphics graphics) {
 	Graphics_setWindow (graphics, 0.0, 1.0, 0.0, 0.8);

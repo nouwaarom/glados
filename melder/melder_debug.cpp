@@ -221,23 +221,6 @@ void MelderTrace::_close (FILE *f) {
 		fclose (f);
 }
 
-#if defined (linux) && ! defined (NO_GUI)
-static void theGtkLogHandler (const gchar *log_domain, GLogLevelFlags log_level, const gchar *message, gpointer unused_data) {
-	FILE *f = MelderTrace::_open (nullptr, 0, "GTK");
-	fprintf (f, "%s", message);
-	MelderTrace::_close (f);
-}
-static void theGlibLogHandler (const gchar *log_domain, GLogLevelFlags log_level, const gchar *message, gpointer unused_data) {
-	FILE *f = MelderTrace::_open (nullptr, 0, "GLib");
-	fprintf (f, "%s", message);
-	MelderTrace::_close (f);
-}
-static void theGlibGobjectLogHandler (const gchar *log_domain, GLogLevelFlags log_level, const gchar *message, gpointer unused_data) {
-	FILE *f = MelderTrace::_open (nullptr, 0, "GLib-GObject");
-	fprintf (f, "%s", message);
-	MelderTrace::_close (f);
-}
-#endif
 
 void Melder_setTracing (bool tracing) {
 	time_t today = time (nullptr);
@@ -249,19 +232,6 @@ void Melder_setTracing (bool tracing) {
 			U" at ", Melder_peek8to32 (ctime (& today))
 		);
 	Melder_isTracing = tracing;
-	#if defined (linux) && ! defined (NO_GUI)
-		static guint handler_id1, handler_id2, handler_id3;
-		if (tracing) {
-			handler_id1 = g_log_set_handler ("Gtk",          (GLogLevelFlags) (G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION), theGtkLogHandler,         nullptr);
-			handler_id2 = g_log_set_handler ("GLib",         (GLogLevelFlags) (G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION), theGlibLogHandler,        nullptr);
-			handler_id3 = g_log_set_handler ("GLib-GObject", (GLogLevelFlags) (G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION), theGlibGobjectLogHandler, nullptr);
-		} else {
-			if (handler_id1) g_log_remove_handler ("Gtk",          handler_id1);
-			if (handler_id2) g_log_remove_handler ("GLib",         handler_id2);
-			if (handler_id3) g_log_remove_handler ("GLib-GObject", handler_id3);
-			handler_id1 = handler_id2 = handler_id3 = 0;
-		}
-	#endif
 	if (tracing)
 		trace (U"switch tracing on"
 			U" in Praat version ", Melder_peek8to32 (xstr (PRAAT_VERSION_STR)),

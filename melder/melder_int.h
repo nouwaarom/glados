@@ -24,6 +24,7 @@
 #define __STDC_LIMIT_MACROS
 #define __STDC_CONSTANT_MACROS
 #include <stdint.h>
+
 using byte = unsigned char;
 using int8 = int8_t;
 using int16 = int16_t;

@@ -395,16 +395,6 @@ static void charSize (void *void_me, _Graphics_widechar *lc) {
 				tertiaryFontInfo = style == Graphics_BOLD ? "BookAntiqua-Bold" :
 					style == Graphics_ITALIC ? "BookAntiqua-Italic" :
 					style == Graphics_BOLD_ITALIC ? "BookAntiqua-BoldItalic" : "BookAntiqua";
-			} else if (font == kGraphics_font_IPATIMES) {
-				if (my includeFonts && ! my loadedXipa) {
-					const char **p;
-					for (p = & ipaSerifRegularPS [0]; *p; p ++)
-						my d_printf (my d_file, "%s", *p);
-					my loadedXipa = true;
-				}
-				fontInfo = my useSilipaPS ?
-					(style == Graphics_BOLD || style == Graphics_BOLD_ITALIC ? "SILDoulosIPA93Bold" : "SILDoulosIPA93Regular") :
-					"TeX-xipa10-Praat-Regular";
 			} else if (font == kGraphics_font_SYMBOL) {
 				fontInfo = "Symbol";
 			} else if (font == kGraphics_font_DINGBATS) {

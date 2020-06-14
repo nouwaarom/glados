@@ -1,6 +1,7 @@
 # intermediate build products for Windows and Linux
 *.o
 *.a
+cmake-build-debug/*
 
 # the project for MacOSX
 *.xcodeproj/
