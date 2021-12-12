@@ -2,7 +2,6 @@
 #include "../sys/praat_version.h"
 #include "Manipulation.h"
 #include "Sound.h"
-#include "festifuck.h"
 
 // Discretize to whole tones.
 double frequency_discretize(double frequency) {
@@ -28,7 +27,7 @@ void PitchTier_Discretize (PitchTier me, kPitch_unit unit) {
 		frequency += 0.2 * diff;
 
         point->value = last_frequency;
-        last_frequency = (last_frequency + 2.0 * frequency_discretize(frequency)) / 3.0;
+        last_frequency = (last_frequency + 1.0 * frequency_discretize(frequency)) / 2.0;
 
         //printf("Freq %f -> %f\n",frequency, point->value);
     }
@@ -63,15 +62,14 @@ int main (int argc, char *argv []) {
         "You win.",
         "Just go!"};
 
-        festifuck_init();
-
         for (std::string line : lines) {
-            festifuck(line.c_str());
+			std::string command = "mimic -t \"" + line + "\" -voice slt --setf duration_stretch=1.2 -o mimic.wav";
+			system(command.c_str());
 
             printf("Gladosifying ...\n");
 
             structMelderFile file;
-            Melder_pathToFile (U"/home/eput/Projects/Glados/festival.wav", &file);
+            Melder_pathToFile (U"mimic.wav", &file);
             autoSound sound = Sound_readFromSoundFile (&file);   // AIFF, WAV, NeXT/Sun, or NIST
             //Sound_play(sound.get(), nullptr, nullptr);
             //Melder_sleep(7);

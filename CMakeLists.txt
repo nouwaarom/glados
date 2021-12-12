@@ -363,8 +363,7 @@ add_executable(praat_glados
     fon/VocalTract.cpp
     fon/VocalTract_to_Spectrum.cpp
     fon/VoiceAnalysis.cpp
-    fon/WordList.cpp
-        main/festifuck.cpp)
+    fon/WordList.cpp )
 
 set_property(TARGET praat_glados PROPERTY CXX_STANDARD 17)
 set_property(TARGET praat_glados PROPERTY C_STANDARD 11)

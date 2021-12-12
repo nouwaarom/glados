@@ -1,5 +1,7 @@
 #ifndef _melder_real_h_
 #define _melder_real_h_
+
+#include <limits>
 /* melder_real.h
  *
  * Copyright (C) 1992-2020 Paul Boersma
